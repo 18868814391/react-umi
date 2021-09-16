@@ -1,4 +1,4 @@
-# admin-antd-react
+# 基于 admin-antd-react 修改出来的学习版本
 
 ## Demo
 
@@ -129,12 +129,4 @@ or
 ```
 $ npm run svgo
 ```
-
-## 捐赠
-
-如果你觉得这个项目帮助到了你，请帮助点击 Star，你也可以请作者喝咖啡表示鼓励.
-
-**ALIPAY**             |  **WECHAT**
-:-------------------------:|:-------------------------:
-![Alipay](http://uploads.liqingsong.cc/20210430/f62d2436-8d92-407d-977f-35f1e4b891fc.png)  |  ![Wechat](http://uploads.liqingsong.cc/20210430/3e24efa9-8e79-4606-9bd9-8215ce1235ac.png)
 
