@@ -2,6 +2,7 @@ export default {
   'test': '测试',
   'test1': '测试1',
   'history': '历史问答',
+  'hospital': '医院',
   'index-layout.topmenu.userinfo': '個人信息',
   'index-layout.topmenu.logout': '退出',
 

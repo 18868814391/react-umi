@@ -32,6 +32,20 @@ const IndexLayoutRoutes: RoutesDataItem[] = [
     ]
   },
   {
+    icon: 'set',
+    title: 'hospital',
+    path: '/hospital',
+    redirect: '/hospital/index',
+    routes: [
+      {
+        icon: 'control',
+        title: 'hospital',
+        path: 'index',
+        component: '@/pages/hospital/pages/index'
+      }
+    ]
+  },
+  {
     icon: 'home',
     title: 'index-layout.menu.home',
     path: '/home',

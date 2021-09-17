@@ -12,7 +12,9 @@ import {
   Modal,
   Row,
   Col,
-  Form
+  Form,
+  Dropdown,
+  Menu
 } from 'antd'
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
 
@@ -21,12 +23,12 @@ import UpdateForm from './components/UpdateForm'
 import TypeSelect from './components/TypeSelect'
 
 import { StateType } from './model'
-import { TableDataType, TableListItem } from './data.d'
+import { TableDataType, TableListItem } from './data'
 import { FormInstance } from 'antd/lib/form'
 import { ColumnsType } from 'antd/lib/table'
 
 const searchFormItemLayout = {
-  labelCol: { span: 3, offset: 0 }
+  labelCol: { span: 6, offset: 0 }
 }
 
 interface ListSearchTablePageProps {
@@ -59,18 +61,19 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
 
   const searchFormSubmit = async() => {
     try {
-      // const fieldsValue = await searchForm.validateFields();
-      // console.log('search', fieldsValue);
+      const fieldsValue = await searchForm.validateFields()
+      console.log('search', fieldsValue)
       message.warning('进行了搜索!')
     } catch (error) {}
   }
 
-  const getList = (current: number): void => {
+  const getList = (current: number, size?:number): void => {
+    const flag = pagination.pageSize == size
     dispatch({
-      type: 'ListSearchTable/queryTableData',
+      type: 'ListSearchTable1/queryTableData',
       payload: {
-        per: pagination.pageSize,
-        page: current
+        pageSize: flag ? pagination.pageSize : size,
+        pageNum: flag ? current : 1
       }
     })
   }
@@ -84,7 +87,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
       onOk: async() => {
         setDeleteLoading([id])
         const res: boolean = await dispatch({
-          type: 'ListSearchTable/deleteTableData',
+          type: 'ListSearchTable1/deleteTableData',
           payload: id
         })
         if (res === true) {
@@ -101,7 +104,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
     form: FormInstance
   ) => {
     const res: boolean = await dispatch({
-      type: 'ListSearchTable/createTableData',
+      type: 'ListSearchTable1/createTableData',
       payload: values
     })
 
@@ -116,7 +119,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
   const detailUpdateData = async(id: number) => {
     setDetailUpdateLoading([id])
     const res: boolean = await dispatch({
-      type: 'ListSearchTable/queryUpdateData',
+      type: 'ListSearchTable1/queryUpdateData',
       payload: id
     })
     if (res === true) {
@@ -127,7 +130,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
 
   const updataFormCancel = async() => {
     await dispatch({
-      type: 'ListSearchTable/setUpdateData',
+      type: 'ListSearchTable1/setUpdateData',
       payload: {}
     })
     setUpdateFormVisible(false)
@@ -135,7 +138,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
 
   const updateSubmit = async(values: TableListItem) => {
     const res: boolean = await dispatch({
-      type: 'ListSearchTable/updateTableData',
+      type: 'ListSearchTable1/updateTableData',
       payload: values
     })
     if (res === true) {
@@ -176,7 +179,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
       title: '是否对接',
       dataIndex: 'canCheck',
       render: (_, record, index) => {
-        return record.canCheck === '1' ? (
+        return record.canCheck === 1 ? (
           <Tag color='green'>已对接</Tag>
         ) : (
           <Tag color='cyan'>未对接</Tag>
@@ -184,28 +187,41 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
       }
     },
     {
-      title: '地址',
-      dataIndex: 'address'
+      title: '所属地区',
+      dataIndex: 'psrStr'
     },
     {
-      title: '位置',
-      dataIndex: 'type',
-      render: (_, record, index) => {
-        return record.type === 'header' ? (
-          <Tag color='green'>头部</Tag>
-        ) : (
-          <Tag color='cyan'>底部</Tag>
-        )
-      }
+      title: '详细地址',
+      dataIndex: 'address'
     },
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: '200px',
       render: (_, record, index) => {
+        const menu = (
+          <Menu>
+            <Menu.Item>科室信息</Menu.Item>
+            <Menu.Divider />
+            <Menu.Item>医生信息</Menu.Item>
+            <Menu.Divider />
+            <Menu.Item>修改</Menu.Item>
+            <Menu.Divider />
+            <Menu.Item>删除</Menu.Item>
+            <Menu.Divider />
+            <Menu.Item>关闭预约挂号</Menu.Item>
+          </Menu>
+        )
         return (
           <>
-            <Button
+            <a>检查设置</a>
+            <Divider type='vertical' />
+            <Dropdown overlay={menu}>
+              <a className='ant-dropdown-link' onClick={e => e.preventDefault()}>
+                更多 <DownOutlined />
+              </a>
+            </Dropdown>
+            {/* <Button
               type='link'
               loading={detailUpdateLoading.includes(record.id)}
               onClick={() => detailUpdateData(record.id)}
@@ -219,7 +235,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
               onClick={() => deleteTableData(record.id)}
             >
               删除
-            </Button>
+            </Button> */}
           </>
         )
       }
@@ -236,7 +252,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
         <Form form={searchForm} name='search'>
           <Row gutter={16} justify='end'>
             <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-              <Form.Item {...searchFormItemLayout} label='名称：' name='name'>
+              <Form.Item {...searchFormItemLayout} label='医院名称：' name='hospitalName'>
                 <Input placeholder='请输入' />
               </Form.Item>
             </Col>
@@ -246,8 +262,8 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-              <Form.Item {...searchFormItemLayout} label='位置：' name='type'>
-                <TypeSelect placeholder='请选择' />
+              <Form.Item {...searchFormItemLayout} label='所属地区：' name='regionIds'>
+                <TypeSelect placeholder='请选择所属地区' />
               </Form.Item>
             </Col>
             {searchOpen ? (
@@ -326,8 +342,8 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
           loading={loading}
           pagination={{
             ...pagination,
-            onChange: (page: number) => {
-              getList(page)
+            onChange: (page: number, size:number) => {
+              getList(page, size)
             }
           }}
         />
@@ -355,20 +371,20 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
 
 export default connect(
   ({
-    ListSearchTable,
+    ListSearchTable1,
     loading
   }: {
-    ListSearchTable: StateType;
+    ListSearchTable1: StateType;
     loading: {
       effects: {
         [key: string]: boolean;
       };
     };
   }) => ({
-    loading: loading.effects['ListSearchTable/queryTableData'],
-    visitData: ListSearchTable.tableData,
-    createSubmitLoading: loading.effects['ListSearchTable/createTableData'],
-    updateData: ListSearchTable.updateData,
-    updateSubmitLoading: loading.effects['ListSearchTable/updateTableData']
+    loading: loading.effects['ListSearchTable1/queryTableData'],
+    visitData: ListSearchTable1.tableData,
+    createSubmitLoading: loading.effects['ListSearchTable1/createTableData'],
+    updateData: ListSearchTable1.updateData,
+    updateSubmitLoading: loading.effects['ListSearchTable1/updateTableData']
   })
 )(ListSearchTablePage)

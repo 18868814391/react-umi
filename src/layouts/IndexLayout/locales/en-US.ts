@@ -2,6 +2,7 @@ export default {
   'test': 'test',
   'test1': 'test1',
   'history': 'history',
+  'hospital': 'hospital',
   'index-layout.topmenu.userinfo': 'Personal Info',
   'index-layout.topmenu.logout': 'Logout',
 

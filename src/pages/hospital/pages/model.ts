@@ -47,7 +47,7 @@ const initState: StateType = {
 }
 
 const Model: ModelType = {
-  namespace: 'ListSearchTable',
+  namespace: 'ListSearchTable1',
   state: initState,
   effects: {
     * queryTableData({ payload }, { call, put }) {
@@ -61,9 +61,9 @@ const Model: ModelType = {
             list: data.list || [],
             pagination: {
               ...initState.tableData.pagination,
-              current: payload.pageNum,
+              current: payload.page,
               pageSize: payload.pageSize,
-              total: Number(data.total) || 0
+              total: data.total || 0
             }
           }
         })
