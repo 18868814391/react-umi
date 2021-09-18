@@ -30,6 +30,7 @@
     "@ckeditor/ckeditor5-build-decoupled-document": "^23.1.0",
     "@ckeditor/ckeditor5-react": "^3.0.2",
     "@toast-ui/react-editor": "^2.5.3",
+    "@uiw/react-amap": "^2.2.6",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "~3.3.11",
     "antd": "^4.16.11",

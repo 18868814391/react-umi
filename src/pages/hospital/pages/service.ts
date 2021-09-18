@@ -6,7 +6,7 @@ import { TableListQueryParams, TableListItem } from './data.d'
 //     params
 //   })
 // }
-interface regionListType {
+interface pageListType {
   pageNum:number;
   pageSize:number;
   hospitalName:string;
@@ -14,7 +14,7 @@ interface regionListType {
   city:number;
   region:number;
 }
-export async function queryList(params: regionListType): Promise<any> {
+export async function queryList(params: pageListType): Promise<any> {
   return request('/smarteye/smarteye-manage/hosManage/pageList', {
     method: 'GET',
     params: params,
@@ -58,6 +58,22 @@ export async function regionList(params: regionListType): Promise<any> {
   return request('/ng/newfuture-org/region/listById', {
     method: 'GET',
     params: params,
+    hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
+  })
+}
+
+export async function getPresignedUrl(params: any): Promise<any> {
+  return request('/ng/newfuture-file/file/getPresignedUrl', {
+    method: 'POST',
+    data: params,
+    hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
+  })
+}
+
+export async function uploadFile(params: any): Promise<any> {
+  return request('/ng/newfuture-file/file/insertTbresource', {
+    method: 'POST',
+    data: params,
     hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
   })
 }

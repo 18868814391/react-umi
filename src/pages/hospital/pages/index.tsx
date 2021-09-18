@@ -63,17 +63,26 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
     try {
       const fieldsValue = await searchForm.validateFields()
       console.log('search', fieldsValue)
-      message.warning('进行了搜索!')
-    } catch (error) {}
+      getList(1, 10, fieldsValue.regionIds, fieldsValue.hospitalName)
+    } catch (error) {
+      console.log(error)
+    }
   }
-
-  const getList = (current: number, size?:number): void => {
+  const resetSubFields = () => {
+    searchForm.resetFields()
+    getList(1, 10)
+  }
+  const getList = (current: number, size?:number, proviceArr?:Array<number>, hosName?:string): void => {
     const flag = pagination.pageSize == size
     dispatch({
       type: 'ListSearchTable1/queryTableData',
       payload: {
         pageSize: flag ? pagination.pageSize : size,
-        pageNum: flag ? current : 1
+        pageNum: flag ? current : 1,
+        province: proviceArr ? proviceArr[0] : '',
+        city: proviceArr ? proviceArr[1] : '',
+        region: proviceArr ? proviceArr[2] : '',
+        hospitalName: hosName
       }
     })
   }
@@ -149,7 +158,7 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
   }
 
   useEffect(() => {
-    getList(1)
+    getList(1, 10)
   }, [1])
 
   const columns: ColumnsType<TableListItem> = [
@@ -257,13 +266,13 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-              <Form.Item {...searchFormItemLayout} label='链接：' name='herf'>
-                <Input placeholder='请输入' />
+              <Form.Item {...searchFormItemLayout} label='所属地区：' name='regionIds'>
+                <TypeSelect placeholder='请选择所属地区' />
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-              <Form.Item {...searchFormItemLayout} label='所属地区：' name='regionIds'>
-                <TypeSelect placeholder='请选择所属地区' />
+              <Form.Item {...searchFormItemLayout} label='其它：' name='herf'>
+                <Input placeholder='请输入' />
               </Form.Item>
             </Col>
             {searchOpen ? (
@@ -292,7 +301,8 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
                 <Button
                   htmlType='button'
                   style={{ marginLeft: 8 }}
-                  onClick={() => searchForm.resetFields()}
+                  // onClick={() => searchForm.resetFields()}
+                  onClick={resetSubFields}
                 >
                   重置
                 </Button>
@@ -327,11 +337,12 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
         }
         extra={
           <div>
-            <Radio.Group defaultValue='all'>
+            额外区域
+            {/* <Radio.Group defaultValue='all'>
               <Radio.Button value='all'>全部</Radio.Button>
               <Radio.Button value='header'>头部</Radio.Button>
               <Radio.Button value='footer'>底部</Radio.Button>
-            </Radio.Group>
+            </Radio.Group> */}
           </div>
         }
       >

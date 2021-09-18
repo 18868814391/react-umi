@@ -1,11 +1,11 @@
-import React from 'react';
-import { useIntl } from 'umi';
-import { FormInstance } from 'antd/lib/form';
-import { Modal, Form, Input, Button, message } from 'antd';
-
-import TypeSelect from './TypeSelect';
-
-import { TableListItem } from '../data.d';
+import React, { useState } from 'react'
+import { useIntl } from 'umi'
+import { FormInstance } from 'antd/lib/form'
+import { Modal, Form, Input, Button, message, Row, Col } from 'antd'
+import TypeSelect from './TypeSelect'
+import ImgUpload from './ImgUpload'
+import AMapC from './AMap'
+import { TableListItem } from '../data.d'
 
 interface CreateFormProps {
   visible: boolean;
@@ -16,121 +16,118 @@ interface CreateFormProps {
 }
 
 const CreateForm: React.FC<CreateFormProps> = props => {
-  const { visible, values, onSubmit, onSubmitLoading, onCancel } = props;
-  const { formatMessage } = useIntl();
+  const { visible, values, onSubmit, onSubmitLoading, onCancel } = props
+  const { formatMessage } = useIntl()
+  const [aMapVisible, setaMapVisible] = useState<boolean>(false)
 
   const formVals: Omit<TableListItem, 'id'> = {
     name: values?.name || '',
     desc: values?.desc || '',
     href: values?.href || '',
-    type: values?.type || '',
-  };
+    type: values?.type || ''
+  }
 
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
-  const onFinish = async () => {
+  const onFinish = async() => {
     try {
-      const fieldsValue = await form.validateFields();
-      onSubmit({ ...formVals, ...fieldsValue }, form);
+      const fieldsValue = await form.validateFields()
+      onSubmit({ ...formVals, ...fieldsValue }, form)
     } catch (error) {
       message.warning(
-        formatMessage({ id: 'app.global.form.validatefields.catch' }),
-      );
+        formatMessage({ id: 'app.global.form.validatefields.catch' })
+      )
     }
-  };
-
+  }
+  const openMap = () => {
+    console.log('openMap')
+    setaMapVisible(true)
+  }
   return (
-    <Modal
-      destroyOnClose
-      maskClosable={false}
-      title="新增"
-      visible={visible}
-      onCancel={onCancel}
-      footer={[
-        <Button key="back" onClick={() => onCancel()}>
+    <>
+      <AMapC
+        onCancel={() => setaMapVisible(false)}
+        visible={aMapVisible}></AMapC>
+      <Modal
+        destroyOnClose
+        maskClosable={false}
+        title='新增'
+        visible={visible}
+        onCancel={onCancel}
+        footer={[
+          <Button key='back' onClick={() => onCancel()}>
           取消
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          htmlType="submit"
-          loading={onSubmitLoading}
-          onClick={() => onFinish()}
-        >
+          </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            htmlType='submit'
+            loading={onSubmitLoading}
+            onClick={() => onFinish()}
+          >
           提交
-        </Button>,
-      ]}
-    >
-      <Form
-        form={form}
-        name="createform"
-        labelCol={{ span: 4 }}
-        initialValues={{
-          name: formVals.name,
-          href: formVals.href,
-          desc: formVals.desc,
-          type: formVals.type,
-        }}
+          </Button>
+        ]}
       >
-        <Form.Item
-          label="位置"
-          name="type"
-          rules={[
-            {
-              required: true,
-              message: '请选择',
-            },
-          ]}
+        <Form
+          form={form}
+          name='createform'
+          labelCol={{ span: 4 }}
+          initialValues={{
+            name: formVals.name,
+            desc: formVals.desc,
+            type: formVals.type
+          }}
         >
-          <TypeSelect placeholder="请选择" />
-        </Form.Item>
-        <Form.Item
-          label="名称"
-          name="name"
-          rules={[
-            {
-              required: true,
-              validator: async (rule, value) => {
-                if (value === '' || !value) {
-                  throw new Error('请输入名称');
-                } else if (value.length > 15) {
-                  throw new Error('长度不能大于15个字');
-                }
-              },
-            },
-          ]}
-        >
-          <Input placeholder="请输入名称" />
-        </Form.Item>
-        <Form.Item
-          label="网址"
-          name="href"
-          rules={[
-            {
-              required: true,
-              validator: async (rule, value) => {
-                if (value === '' || !value) {
-                  throw new Error('请输入网址');
-                } else if (
-                  !/(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/.test(
-                    value,
-                  )
-                ) {
-                  throw new Error('请输入正确的网址');
-                }
-              },
-            },
-          ]}
-        >
-          <Input placeholder="请输入网址" />
-        </Form.Item>
+          <Row>
+            <Col span={6}>
+              <ImgUpload></ImgUpload>
+            </Col>
+            <Col span={18}>
+              <Form.Item labelCol={ { span: 6, offset: 0 } } label='地图位置' name='position'>
+                <Input style={{ width: '150px' }} disabled placeholder='请选择坐标' />
+                <Button style={{ marginLeft: '10px' }} type='primary' onClick={openMap}>打开地图</Button>
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Form.Item label="备注" name="desc">
-          <Input placeholder="请输入备注" />
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
+          <Form.Item
+            label='位置'
+            name='type'
+            rules={[
+              {
+                required: true,
+                message: '请选择'
+              }
+            ]}
+          >
+            <TypeSelect placeholder='请选择' />
+          </Form.Item>
+          <Form.Item
+            label='名称'
+            name='name'
+            rules={[
+              {
+                required: true,
+                validator: async(rule, value) => {
+                  if (value === '' || !value) {
+                    throw new Error('请输入名称')
+                  } else if (value.length > 15) {
+                    throw new Error('长度不能大于15个字')
+                  }
+                }
+              }
+            ]}
+          >
+            <Input placeholder='请输入名称' />
+          </Form.Item>
+          <Form.Item label='备注' name='desc'>
+            <Input placeholder='请输入备注' />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  )
+}
 
-export default CreateForm;
+export default CreateForm

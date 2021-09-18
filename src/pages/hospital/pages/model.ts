@@ -61,7 +61,7 @@ const Model: ModelType = {
             list: data.list || [],
             pagination: {
               ...initState.tableData.pagination,
-              current: payload.page,
+              current: payload.pageNum,
               pageSize: payload.pageSize,
               total: data.total || 0
             }

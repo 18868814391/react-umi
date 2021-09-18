@@ -13,6 +13,7 @@ export default defineConfig({
   define: {
     API_HOST: API_HOST,
   },
+  externals:{ 'AMap':'window.AMap' },
   publicPath: '/static/',
   history: { type: 'hash' },
   hash: true,
