@@ -10,10 +10,11 @@ const AMapC: React.FC<AMapProps> = props => {
   const { visible, onCancel } = props
 
   const [myMap, setMyMap] = useState<any>({})
-  const [geocoder, setGeocoder] = useState<any>({})
+  const [geocoder, setGeocoder] = useState<any>('')
 
   const mapClick = (e) => {
     console.log(e.lnglat)
+    console.log('geocoder222', geocoder)
     geocoder.getAddress(e.lnglat, (status, result) => {
       if (status === 'complete' && result.regeocode) {
         console.log(result)
@@ -29,18 +30,41 @@ const AMapC: React.FC<AMapProps> = props => {
   //   // initGeocoder()
   // }, [1])
   return (
-    <Modal
-      title='高德地图'
-      onCancel={onCancel}
-      visible={visible}
-    >
-      <APILoader akay='4881b4b13c0a8d1e91061233e0f337cf' plugin='AMap.Geocoder'>
-        <div style={{ width: '100%', height: '300px' }} >
-          <Map
-            zoom={14}
-            onClick={mapClick}
-          >
-            {({ AMap, map, container }) => {
+    <>
+      <input id='tipinput' type='text'></input>
+      <Modal
+        title='高德地图'
+        onCancel={onCancel}
+        visible={visible}
+      >
+        <APILoader akay='4881b4b13c0a8d1e91061233e0f337cf' plugin='AMap.Geocoder,AMap.Autocomplete'>
+          <div style={{ width: '100%', height: '300px' }} >
+            <Map
+              zoom={14}
+              onClick={mapClick}
+              ref={(instance) => {
+                if (instance && instance.map) {
+                  console.log('instance66666', instance)
+                  const { AMap, map, container } = instance
+                  if (map) {
+                    // const auto = new AMap.Autocomplete({
+                    //   input: 'tipinput'
+                    // })
+                    const geocoder1 = new AMap.Geocoder({
+                      city: '010', // 城市设为北京，默认：“全国”
+                      radius: 1000 // 范围，默认：500
+                    })
+                    console.log('geocodergeocoder', geocoder1)
+                    console.log(111111, geocoder)
+                    if (!geocoder) { // 不然会有无限循环渲染问题
+                      setGeocoder(geocoder1)
+                      console.log('ihave', geocoder)
+                    }
+                  }
+                }
+              }}
+            >
+              {/* {({ AMap, map, container }) => {
               console.log('map', AMap)
               if (map) {
                 const geocoder1 = new AMap.Geocoder({
@@ -48,38 +72,30 @@ const AMapC: React.FC<AMapProps> = props => {
                   radius: 1000 // 范围，默认：500
                 })
                 console.log('geocodergeocoder', geocoder1)
+                console.log(111111, geocoder)
                 if (!geocoder) { // 不然会有无限循环渲染问题
                   setGeocoder(geocoder1)
+                  console.log('ihave', geocoder)
                 }
               }
               return
-            }}
-            {/* <Geolocation
-            // 是否使用高精度定位，默认:true
-              enableHighAccuracy={true}
-              // 超过10秒后停止定位，默认：5s
-              timeout={10000}
-              // 定位按钮的停靠位置
-              // 官方 v2 不再支持
-              // buttonPosition="RB"
-
-              // 定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
-              // 官方 v2 不再支持
-              // buttonOffset={new AMap.Pixel(10, 20)}
-
-              // 定位成功后是否自动调整地图视野到定位点
-              zoomToAccuracy={true}
-              onComplete={(data) => {
-                console.log('返回数据：', data)
-              }}
-              onError={(data) => {
-                console.log('错误返回数据：', data)
-              }}
-            /> */}
-          </Map>
-        </div>
-      </APILoader>
-    </Modal>
+            }} */}
+              <Geolocation
+                enableHighAccuracy={true}
+                timeout={10000}
+                zoomToAccuracy={true}
+                onComplete={(data) => {
+                  console.log('返回数据：', data)
+                }}
+                onError={(data) => {
+                  console.log('错误返回数据：', data)
+                }}
+              />
+            </Map>
+          </div>
+        </APILoader>
+      </Modal>
+    </>
   )
 }
 
