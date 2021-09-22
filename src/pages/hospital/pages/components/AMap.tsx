@@ -1,86 +1,94 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Modal } from 'antd'
-import { Map, APILoader, Geolocation } from '@uiw/react-amap'
-
+import { Map, APILoader, Geolocation, AutoComplete } from '@uiw/react-amap'
+import { connect, Dispatch } from 'umi'
+import { StateType } from '../model'
+import styles from '../style.less'
 interface AMapProps {
+  dispatch: Dispatch;
   visible: boolean;
   onCancel: () => void;
 }
 const AMapC: React.FC<AMapProps> = props => {
-  const { visible, onCancel } = props
+  const { visible, onCancel, dispatch } = props
 
-  const [myMap, setMyMap] = useState<any>({})
   const [geocoder, setGeocoder] = useState<any>('')
-
+  const [locName, setLocName] = useState()
+  const [lgPoint, setLgPoint] = useState<any>()
+  const [areaCode, setAreaCode] = useState<any>()
   const mapClick = (e) => {
-    console.log(e.lnglat)
-    console.log('geocoder222', geocoder)
+    setLgPoint([e.lnglat.lat, e.lnglat.lng])
     geocoder.getAddress(e.lnglat, (status, result) => {
       if (status === 'complete' && result.regeocode) {
-        console.log(result)
+        setAreaCode(result.regeocode.addressComponent.adcode)
+        setLocName(result.regeocode.formattedAddress)
+        updataLoc({ name: result.regeocode.formattedAddress, areaCode: result.regeocode.addressComponent.adcode, pos: [e.lnglat.lat, e.lnglat.lng] })
       } else {
         console.log('根据经纬度查询地址失败')
       }
     })
   }
-  const initGeocoder = () => {
-    console.log('geocoder', geocoder)
-  }
   // useEffect(() => {
   //   // initGeocoder()
   // }, [1])
+  const mapRef = useRef()
+  const [inpLoc, setInpLoc] = useState()
+  const updataLoc = (py) => {
+    dispatch({
+      type: 'ListSearchTable1/setLocation',
+      payload: py
+    })
+  }
   return (
     <>
-      <input id='tipinput' type='text'></input>
       <Modal
         title='高德地图'
         onCancel={onCancel}
+        onOk={onCancel}
         visible={visible}
       >
-        <APILoader akay='4881b4b13c0a8d1e91061233e0f337cf' plugin='AMap.Geocoder,AMap.Autocomplete'>
+        <APILoader akay='4881b4b13c0a8d1e91061233e0f337cf' plugin='AMap.Geocoder'>
+          <div className={styles.inpHead} style={{ width: '100%', height: '50px' }}>
+            <input className={styles.inpBox} id='inpp' type='text' ref={mapRef} />
+            <div style={{ width: '100%' }}>
+              { (
+                <AutoComplete
+                  input={'inpp'}
+                  onSelect={(opts) => {
+                    setInpLoc(opts)
+                    setLocName(opts.poi.name)
+                    setLgPoint([opts.poi.location.lat, opts.poi.location.lng])
+                    setAreaCode(opts.poi.adcode)
+                    updataLoc({ name: opts.poi.name, areaCode: opts.poi.adcode, pos: [opts.poi.location.lat, opts.poi.location.lng] })
+                  }}
+                />
+              )}
+            </div>
+            <div className={styles.dataBox}>
+              <p>{lgPoint}-{areaCode}</p>
+              <p>{locName}</p>
+            </div>
+          </div>
           <div style={{ width: '100%', height: '300px' }} >
+            {/* [120.313764, 30.300968] */}
             <Map
               zoom={14}
+              center={lgPoint ? [lgPoint[1], lgPoint[0]] : null}
               onClick={mapClick}
               ref={(instance) => {
                 if (instance && instance.map) {
-                  console.log('instance66666', instance)
                   const { AMap, map, container } = instance
                   if (map) {
-                    // const auto = new AMap.Autocomplete({
-                    //   input: 'tipinput'
-                    // })
-                    const geocoder1 = new AMap.Geocoder({
-                      city: '010', // 城市设为北京，默认：“全国”
-                      radius: 1000 // 范围，默认：500
-                    })
-                    console.log('geocodergeocoder', geocoder1)
-                    console.log(111111, geocoder)
+                    const geocoder1 = new AMap.Geocoder()
+                    const mpCenter = AMap
                     if (!geocoder) { // 不然会有无限循环渲染问题
                       setGeocoder(geocoder1)
-                      console.log('ihave', geocoder)
                     }
                   }
                 }
               }}
             >
-              {/* {({ AMap, map, container }) => {
-              console.log('map', AMap)
-              if (map) {
-                const geocoder1 = new AMap.Geocoder({
-                  city: '010', // 城市设为北京，默认：“全国”
-                  radius: 1000 // 范围，默认：500
-                })
-                console.log('geocodergeocoder', geocoder1)
-                console.log(111111, geocoder)
-                if (!geocoder) { // 不然会有无限循环渲染问题
-                  setGeocoder(geocoder1)
-                  console.log('ihave', geocoder)
-                }
-              }
-              return
-            }} */}
-              <Geolocation
+              {/* <Geolocation
                 enableHighAccuracy={true}
                 timeout={10000}
                 zoomToAccuracy={true}
@@ -90,13 +98,27 @@ const AMapC: React.FC<AMapProps> = props => {
                 onError={(data) => {
                   console.log('错误返回数据：', data)
                 }}
-              />
+              /> */}
             </Map>
           </div>
         </APILoader>
       </Modal>
     </>
+
   )
 }
 
-export default AMapC
+export default connect(
+  ({
+    ListSearchTable1
+  }: {
+    ListSearchTable1: StateType;
+    loading: {
+      effects: {
+        [key: string]: boolean;
+      };
+    };
+  }) => ({
+    visitData: ListSearchTable1.tableData
+  })
+)(AMapC)

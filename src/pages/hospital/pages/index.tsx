@@ -230,21 +230,6 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
                 更多 <DownOutlined />
               </a>
             </Dropdown>
-            {/* <Button
-              type='link'
-              loading={detailUpdateLoading.includes(record.id)}
-              onClick={() => detailUpdateData(record.id)}
-            >
-              编辑
-            </Button>
-            <Divider type='vertical' />
-            <Button
-              type='link'
-              loading={deleteLoading.includes(record.id)}
-              onClick={() => deleteTableData(record.id)}
-            >
-              删除
-            </Button> */}
           </>
         )
       }
@@ -338,11 +323,6 @@ const ListSearchTablePage: React.FC<ListSearchTablePageProps> = props => {
         extra={
           <div>
             额外区域
-            {/* <Radio.Group defaultValue='all'>
-              <Radio.Button value='all'>全部</Radio.Button>
-              <Radio.Button value='header'>头部</Radio.Button>
-              <Radio.Button value='footer'>底部</Radio.Button>
-            </Radio.Group> */}
           </div>
         }
       >

@@ -12,6 +12,7 @@ import {
 import { TableDataType, TableListItem } from './data.d'
 
 export interface StateType {
+  locData:any;
   tableData: TableDataType;
   updateData: Partial<TableListItem>;
 }
@@ -20,6 +21,7 @@ export interface ModelType {
   namespace: string;
   state: StateType;
   effects: {
+    setLocation: Effect,
     queryTableData: Effect;
     deleteTableData: Effect;
     createTableData: Effect;
@@ -27,12 +29,14 @@ export interface ModelType {
     updateTableData: Effect;
   };
   reducers: {
+    setLocData:Reducer<StateType>
     setTableData: Reducer<StateType>;
     setUpdateData: Reducer<StateType>;
   };
 }
 
 const initState: StateType = {
+  locData: {},
   tableData: {
     list: [],
     pagination: {
@@ -50,6 +54,17 @@ const Model: ModelType = {
   namespace: 'ListSearchTable1',
   state: initState,
   effects: {
+    * setLocation({ payload }, { call, put }) {
+      try {
+        yield put({
+          type: 'setLocData',
+          payload: payload
+        })
+        return true
+      } catch (error) {
+        return false
+      }
+    },
     * queryTableData({ payload }, { call, put }) {
       try {
         const response: ResponseData = yield call(queryList, payload)
@@ -115,6 +130,13 @@ const Model: ModelType = {
     }
   },
   reducers: {
+    setLocData(state, { payload }) {
+      return {
+        ...initState,
+        ...state,
+        locData: payload
+      }
+    },
     setTableData(state, { payload }) {
       return {
         ...initState,
