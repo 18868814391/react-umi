@@ -119,6 +119,6 @@ export default connect(
       };
     };
   }) => ({
-    visitData: ListSearchTable1.tableData
+
   })
 )(AMapC)

@@ -77,3 +77,18 @@ export async function uploadFile(params: any): Promise<any> {
     hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
   })
 }
+export async function hosList(params: any): Promise<any> {
+  return request('/ng/newfuture-org/org/hospital/list', {
+    method: 'GET',
+    params: params,
+    hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
+  })
+}
+export async function dictinoary(params: any): Promise<any> {
+  return request('/ng/newfuture-org/dict/listByMark', {
+    method: 'GET',
+    params: params,
+    hostTarget: 'https://nf-api-test.qdsgvision.com:20443'
+  })
+}
+

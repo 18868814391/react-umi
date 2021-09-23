@@ -3,6 +3,8 @@ import { ResponseData } from '@/utils/request'
 
 import {
   queryList,
+  hosList,
+  dictinoary,
   removeData,
   createData,
   detailData,
@@ -12,6 +14,7 @@ import {
 import { TableDataType, TableListItem } from './data.d'
 
 export interface StateType {
+  hosData:any;
   locData:any;
   tableData: TableDataType;
   updateData: Partial<TableListItem>;
@@ -22,6 +25,8 @@ export interface ModelType {
   state: StateType;
   effects: {
     setLocation: Effect,
+    queryHosList: Effect,
+    setDictinary: Effect,
     queryTableData: Effect;
     deleteTableData: Effect;
     createTableData: Effect;
@@ -31,12 +36,14 @@ export interface ModelType {
   reducers: {
     setLocData:Reducer<StateType>
     setTableData: Reducer<StateType>;
+    setHosData:Reducer<StateType>
     setUpdateData: Reducer<StateType>;
   };
 }
 
 const initState: StateType = {
   locData: {},
+  hosData: [],
   tableData: {
     list: [],
     pagination: {
@@ -65,6 +72,15 @@ const Model: ModelType = {
         return false
       }
     },
+    * setDictinary({ payload }, { call, put }) {
+      try {
+        const response: ResponseData = yield call(dictinoary, payload)
+        const { data } = response
+        return data
+      } catch (error) {
+        return error
+      }
+    },
     * queryTableData({ payload }, { call, put }) {
       try {
         const response: ResponseData = yield call(queryList, payload)
@@ -85,6 +101,19 @@ const Model: ModelType = {
         return true
       } catch (error) {
         return false
+      }
+    },
+    * queryHosList({ payload }, { call, put }) {
+      try {
+        const response: ResponseData = yield call(hosList, payload)
+        const { data } = response
+        yield put({
+          type: 'setHosData',
+          payload: data
+        })
+        return data
+      } catch (error) {
+        return error
       }
     },
     * deleteTableData({ payload }, { call, put }) {
@@ -142,6 +171,13 @@ const Model: ModelType = {
         ...initState,
         ...state,
         tableData: payload
+      }
+    },
+    setHosData(state, { payload }) {
+      return {
+        ...initState,
+        ...state,
+        hosData: payload
       }
     },
     setUpdateData(state, { payload }) {

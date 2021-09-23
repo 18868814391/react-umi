@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useIntl, connect, Dispatch } from 'umi'
 import { FormInstance } from 'antd/lib/form'
-import { Modal, Form, Input, Button, message, Row, Col } from 'antd'
+import { Modal, Form, Input, Button, message, Row, Col, Select } from 'antd'
 import TypeSelect from './TypeSelect'
 import ImgUpload from './ImgUpload'
 import AMapC from './AMap'
+import SearchInp from './SearchInp'
 import { StateType } from '../model'
 import { TableListItem } from '../data.d'
-
+const { Option } = Select
 interface CreateFormProps {
+  locData:any;
   visitData:any;
   dispatch: Dispatch;
   visible: boolean;
@@ -19,11 +21,15 @@ interface CreateFormProps {
 }
 
 const CreateForm: React.FC<CreateFormProps> = props => {
-  const { visible, values, onSubmit, onSubmitLoading, onCancel, visitData, dispatch } = props
-  console.log('visitData', visitData)
+  const { visible, values, onSubmit, onSubmitLoading, onCancel, visitData, locData, dispatch } = props
   const { formatMessage } = useIntl()
   const [aMapVisible, setaMapVisible] = useState<boolean>(false)
-
+  const requiredRules = [
+    {
+      required: true,
+      message: '请选择'
+    }
+  ]
   const formVals: Omit<TableListItem, 'id'> = {
     name: values?.name || '',
     desc: values?.desc || '',
@@ -44,9 +50,40 @@ const CreateForm: React.FC<CreateFormProps> = props => {
     }
   }
   const openMap = () => {
-    console.log('openMap')
     setaMapVisible(true)
   }
+
+  const [hosp_level, setHosp_level] = useState<any>([])
+  const [hosp_type, setHosp_type] = useState<any>([])
+  const [hosp_ownership, setHosp_ownership] = useState<any>([])
+  const [is_con, setIs_con] = useState<any>([])
+  const [is_base, setIs_base] = useState<any>([])
+  const getDics = () => {
+    dispatch({
+      type: 'ListSearchTable1/setDictinary',
+      payload: { mark: 'hosp_level' }
+    }).then((e) => {
+      setHosp_level(e)
+    })
+    dispatch({
+      type: 'ListSearchTable1/setDictinary',
+      payload: { mark: 'hosp_type' }
+    }).then((e) => {
+      setHosp_type(e)
+    })
+    dispatch({
+      type: 'ListSearchTable1/setDictinary',
+      payload: { mark: 'hosp_ownership' }
+    }).then((e) => {
+      setHosp_ownership(e)
+    })
+    setIs_con([{ key: 0, value: '否' }, { key: 1, value: '是' }])
+    setIs_base([{ key: 0, value: '否' }, { key: 1, value: '是' }])
+  }
+
+  useEffect(() => {
+    getDics()
+  }, [])
   return (
     <>
       <Modal
@@ -70,7 +107,7 @@ const CreateForm: React.FC<CreateFormProps> = props => {
           </Button>
         ]}
       >
-        {JSON.stringify(visitData)}
+        {JSON.stringify(locData)}
         <Form
           form={form}
           name='createform'
@@ -86,46 +123,64 @@ const CreateForm: React.FC<CreateFormProps> = props => {
               <ImgUpload></ImgUpload>
             </Col>
             <Col span={18}>
-              <Form.Item labelCol={ { span: 6, offset: 0 } } label='地图位置' name='position'>
+              <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='地图位置' name='position'>
                 <Input value={visitData.name} style={{ width: '150px' }} disabled placeholder='请选择坐标' />
                 <Button style={{ marginLeft: '10px' }} type='primary' onClick={openMap}>打开地图</Button>
               </Form.Item>
+              <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='医院名称' name='hosName'>
+                <SearchInp></SearchInp>
+              </Form.Item>
+              <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='详细地址' name='addDetail'>
+                <Input value={visitData.name} placeholder='请补充地址' />
+              </Form.Item>
             </Col>
           </Row>
-
-          <Form.Item
-            label='位置'
-            name='type'
-            rules={[
-              {
-                required: true,
-                message: '请选择'
-              }
-            ]}
-          >
-            <TypeSelect placeholder='请选择' />
-          </Form.Item>
-          <Form.Item
-            label='名称'
-            name='name'
-            rules={[
-              {
-                required: true,
-                validator: async(rule, value) => {
-                  if (value === '' || !value) {
-                    throw new Error('请输入名称')
-                  } else if (value.length > 15) {
-                    throw new Error('长度不能大于15个字')
-                  }
-                }
-              }
-            ]}
-          >
-            <Input placeholder='请输入名称' />
-          </Form.Item>
-          <Form.Item label='备注' name='desc'>
-            <Input placeholder='请输入备注' />
-          </Form.Item>
+          <Row justify='space-between'>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='医院编码' name='hosCode'>
+                <Input value={visitData.name} placeholder='请输入医院编码' />
+              </Form.Item>
+            </Col>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='医院级别' name='hosLevel'>
+                <Select placeholder='请选择'>
+                  {hosp_level.map(item => (<Option key={item.key}>{item.value}</Option>))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row justify='space-between'>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='医院属性' name='hosProp'>
+                <Select placeholder='请选择'>
+                  {hosp_type.map(item => (<Option key={item.key}>{item.value}</Option>))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='医院类型' name='hosType'>
+                <Select placeholder='请选择'>
+                  {hosp_ownership.map(item => (<Option key={item.key}>{item.value}</Option>))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row justify='space-between'>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='是否对接' name='isConnenct'>
+                <Select placeholder='请选择'>
+                  {is_con.map(item => (<Option key={item.key}>{item.value}</Option>))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={11}>
+              <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='是否基层' name='isBasic'>
+                <Select placeholder='请选择'>
+                  {is_base.map(item => (<Option key={item.key}>{item.value}</Option>))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
         <AMapC
           onCancel={() => setaMapVisible(false)}
@@ -139,6 +194,7 @@ export default connect(
   (
     { ListSearchTable1 }:
     {ListSearchTable1: StateType;loading: {effects: {[key: string]: boolean;};};}) => ({
+    locData: ListSearchTable1.locData,
     visitData: ListSearchTable1.locData
   })
 )(CreateForm)
