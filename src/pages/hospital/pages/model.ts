@@ -16,6 +16,7 @@ import { TableDataType, TableListItem } from './data.d'
 export interface StateType {
   hosData:any;
   locData:any;
+  hospitalId:any;
   tableData: TableDataType;
   updateData: Partial<TableListItem>;
 }
@@ -25,6 +26,7 @@ export interface ModelType {
   state: StateType;
   effects: {
     setLocation: Effect,
+    hosId:Effect,
     queryHosList: Effect,
     setDictinary: Effect,
     queryTableData: Effect;
@@ -35,6 +37,7 @@ export interface ModelType {
   };
   reducers: {
     setLocData:Reducer<StateType>
+    hosIdData:Reducer<StateType>
     setTableData: Reducer<StateType>;
     setHosData:Reducer<StateType>
     setUpdateData: Reducer<StateType>;
@@ -43,6 +46,7 @@ export interface ModelType {
 
 const initState: StateType = {
   locData: {},
+  hospitalId: '',
   hosData: [],
   tableData: {
     list: [],
@@ -65,6 +69,17 @@ const Model: ModelType = {
       try {
         yield put({
           type: 'setLocData',
+          payload: payload
+        })
+        return true
+      } catch (error) {
+        return false
+      }
+    },
+    * hosId({ payload }, { call, put }) {
+      try {
+        yield put({
+          type: 'hosIdData',
           payload: payload
         })
         return true
@@ -164,6 +179,13 @@ const Model: ModelType = {
         ...initState,
         ...state,
         locData: payload
+      }
+    },
+    hosIdData(state, { payload }) {
+      return {
+        ...initState,
+        ...state,
+        hospitalId: payload
       }
     },
     setTableData(state, { payload }) {

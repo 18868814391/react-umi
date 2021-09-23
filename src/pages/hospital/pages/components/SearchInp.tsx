@@ -38,25 +38,24 @@ const SearchInp: React.FC<SearchInpProps> = props => {
     console.log('eee', value)
     run(value)
   }
-  const addItem = () => {
-    setName('')
-    setItems([...items, name || `New item `])
+  const handleChange = (e) => {
+    console.log('eeeee', e)
+    dispatch({
+      type: 'ListSearchTable1/hosId',
+      payload: e
+    })
   }
   return (
     <>
       <Select
         style={{ width: 240 }}
         placeholder='选择医院名称'
+        onChange={handleChange}
         dropdownRender={menu => (
           <div>
 
             <div style={{ display: 'flex', flexWrap: 'nowrap', padding: 8 }}>
               <Input style={{ flex: 'auto' }} value={name} onChange={(e) => onNameChangeDebonce(e.target.value)} />
-              <a
-                style={{ flex: 'none', padding: '8px', display: 'block', cursor: 'pointer' }}
-                onClick={addItem}
-              >
-              </a>
             </div>
             <Divider style={{ margin: '4px 0' }} />
             {loading ? <Spin size='small' /> : ''}
@@ -65,7 +64,6 @@ const SearchInp: React.FC<SearchInpProps> = props => {
         )}
       >
         {
-
           items.map(item => (
             <Option key={item.orgId}>{item.name}</Option>
           ))

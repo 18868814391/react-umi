@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIntl, connect, Dispatch } from 'umi'
 import { FormInstance } from 'antd/lib/form'
 import { Modal, Form, Input, Button, message, Row, Col, Select } from 'antd'
-import TypeSelect from './TypeSelect'
+// import TypeSelect from './TypeSelect'
 import ImgUpload from './ImgUpload'
 import AMapC from './AMap'
 import SearchInp from './SearchInp'
@@ -12,6 +12,7 @@ const { Option } = Select
 interface CreateFormProps {
   locData:any;
   visitData:any;
+  hospitalId:any;
   dispatch: Dispatch;
   visible: boolean;
   values?: Partial<TableListItem>;
@@ -21,15 +22,29 @@ interface CreateFormProps {
 }
 
 const CreateForm: React.FC<CreateFormProps> = props => {
-  const { visible, values, onSubmit, onSubmitLoading, onCancel, visitData, locData, dispatch } = props
+  const { visible, values, onSubmit, onSubmitLoading, onCancel, visitData, locData, hospitalId, dispatch } = props
   const { formatMessage } = useIntl()
   const [aMapVisible, setaMapVisible] = useState<boolean>(false)
   const requiredRules = [
     {
-      required: true,
-      message: '请选择'
+      required: true
     }
   ]
+
+  const checkPos = (rule, value) => {
+    if (visitData.name) { // 校验条件自定义
+      return Promise.resolve()
+    }
+    return Promise.reject('请选择')
+  }
+
+  const checkHosname = (rule, value) => {
+    if (hospitalId) { // 校验条件自定义
+      return Promise.resolve()
+    }
+    return Promise.reject('请选择')
+  }
+
   const formVals: Omit<TableListItem, 'id'> = {
     name: values?.name || '',
     desc: values?.desc || '',
@@ -107,7 +122,7 @@ const CreateForm: React.FC<CreateFormProps> = props => {
           </Button>
         ]}
       >
-        {JSON.stringify(locData)}
+        {JSON.stringify(locData)}--{hospitalId}
         <Form
           form={form}
           name='createform'
@@ -123,22 +138,22 @@ const CreateForm: React.FC<CreateFormProps> = props => {
               <ImgUpload></ImgUpload>
             </Col>
             <Col span={18}>
-              <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='地图位置' name='position'>
+              <Form.Item rules={[{ required: true }, { validator: checkPos }]} labelCol={ { span: 6, offset: 0 } } label='地图位置' name='position'>
                 <Input value={visitData.name} style={{ width: '150px' }} disabled placeholder='请选择坐标' />
                 <Button style={{ marginLeft: '10px' }} type='primary' onClick={openMap}>打开地图</Button>
               </Form.Item>
-              <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='医院名称' name='hosName'>
+              <Form.Item rules={[{ validator: checkHosname }]} labelCol={ { span: 6, offset: 0 } } label='医院名称' name='hosName'>
                 <SearchInp></SearchInp>
               </Form.Item>
               <Form.Item rules={requiredRules} labelCol={ { span: 6, offset: 0 } } label='详细地址' name='addDetail'>
-                <Input value={visitData.name} placeholder='请补充地址' />
+                <Input placeholder='请补充地址' />
               </Form.Item>
             </Col>
           </Row>
           <Row justify='space-between'>
             <Col span={11}>
               <Form.Item rules={requiredRules} labelCol={ { span: 9, offset: 0 } } label='医院编码' name='hosCode'>
-                <Input value={visitData.name} placeholder='请输入医院编码' />
+                <Input placeholder='请输入医院编码' />
               </Form.Item>
             </Col>
             <Col span={11}>
@@ -195,6 +210,7 @@ export default connect(
     { ListSearchTable1 }:
     {ListSearchTable1: StateType;loading: {effects: {[key: string]: boolean;};};}) => ({
     locData: ListSearchTable1.locData,
-    visitData: ListSearchTable1.locData
+    visitData: ListSearchTable1.locData,
+    hospitalId: ListSearchTable1.hospitalId
   })
 )(CreateForm)
